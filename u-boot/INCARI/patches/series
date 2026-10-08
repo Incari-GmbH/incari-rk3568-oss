@@ -1,0 +1,5 @@
+0001-disable-edp-when-init-cpu.patch -p1
+0002-rk3568-build-without-libxbc-and-lib-sha512.patch -p1
+meta-rockchip/0001-kbuild-use-fmacro-prefix-map-to-make-__FILE__-a-rela.patch -p1
+meta-rockchip/0002-HACK-Support-python3-for-dtoc.patch -p1
+meta-rockchip/0003-Revert-Makefile-enable-Werror-option.patch -p1

@@ -1,0 +1,27 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2020 Rockchip Electronics Co., Ltd.
+ *
+ */
+
+/dts-v1/;
+
+#include "ntimes-rk3568-evb.dtsi"
+#include "rk3568-nvr-linux.dtsi"
+
+/ {
+	model = "Rockchip RK3568 DDR4 K105";
+	compatible = "rockchip,ntimes-linux-rk3568-k510-v2", "rockchip,rk3568";
+};
+
+&pcie30phy {
+	status = "disabled";
+};
+
+&pcie3x1 {
+	status = "disabled";
+};
+
+&pcie3x2 {
+	status = "disabled";
+};

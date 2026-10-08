@@ -1,0 +1,59 @@
+From: Incari GmbH <>
+Date: Wed, 7 Oct 2026 17:51:16 +0200
+Subject: [PATCH] rockchip: rk3568: build without lib/libxbc and lib/sha512.c
+
+Do not set CONFIG_XBC and CONFIG_SHA512 in rk3568_defconfig, and
+include <xbc.h> in arch/arm/mach-rockchip/board.c only when CONFIG_XBC
+is set.
+
+In this configuration lib/libxbc (Android boot configuration) is called
+from ft_verify_fdt() in board.c only, and only for an Android boot image
+with header version 4 or later: for any other image the function returns
+1 before it reaches that code. Without CONFIG_XBC, lib/libxbc is not
+compiled and not linked, and ft_verify_fdt() only returns 1. With the
+#ifdef around the include, lib/libxbc/libxbc.h is no longer read by the
+build either.
+
+lib/sha512.c was compiled, but the linker discarded all of its sections,
+so the U-Boot binary held no code of it. Without CONFIG_SHA512 it is no
+longer compiled.
+
+An Android boot image with header version 4 or later is no longer
+supported by this configuration: its androidboot.* arguments are still
+taken out of bootargs, but nothing adds them to the boot configuration.
+
+Incari GmbH made this change for Incari RK3568 OS, whose boot partition
+holds an Android boot image with header version 0.
+
+---
+ arch/arm/mach-rockchip/board.c | 2 ++
+ configs/rk3568_defconfig       | 2 --
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-rockchip/board.c b/arch/arm/mach-rockchip/board.c
+index 7a4124ae1e..2a74a692a2 100644
+--- a/arch/arm/mach-rockchip/board.c
++++ b/arch/arm/mach-rockchip/board.c
+@@ -33,7 +33,9 @@
+ #include <syscon.h>
+ #include <sysmem.h>
+ #include <video_rockchip.h>
++#ifdef CONFIG_XBC
+ #include <xbc.h>
++#endif
+ #include <asm/io.h>
+ #include <asm/gpio.h>
+ #include <android_avb/rk_avb_ops_user.h>
+diff --git a/configs/rk3568_defconfig b/configs/rk3568_defconfig
+index db14f5e150..af9667c955 100644
+--- a/configs/rk3568_defconfig
++++ b/configs/rk3568_defconfig
+@@ -208,8 +208,6 @@ CONFIG_SPL_RSA=y
+ CONFIG_RSA_N_SIZE=0x200
+ CONFIG_RSA_E_SIZE=0x10
+ CONFIG_RSA_C_SIZE=0x20
+-CONFIG_XBC=y
+-CONFIG_SHA512=y
+ CONFIG_LZ4=y
+ CONFIG_LZMA=y
+ CONFIG_SPL_GZIP=y

@@ -1,0 +1,40 @@
+From: Board supplier <>
+Date: Mon, 11 Aug 2025 10:44:13 +0800
+Subject: [PATCH] rockchip: rk3568: disable the eDP PHY in arch_cpu_init()
+
+Disable the eDP PHY by default when the CPU is initialised, to reduce
+power consumption on a board that does not use eDP.
+
+This change was written by the board supplier. Incari GmbH applies it
+to the U-Boot source for Incari RK3568 OS and distributes U-Boot
+with it.
+
+---
+ arch/arm/mach-rockchip/rk3568/rk3568.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/arch/arm/mach-rockchip/rk3568/rk3568.c b/arch/arm/mach-rockchip/rk3568/rk3568.c
+index 3b33322a6c..b188acc9ba 100644
+--- a/arch/arm/mach-rockchip/rk3568/rk3568.c
++++ b/arch/arm/mach-rockchip/rk3568/rk3568.c
+@@ -34,6 +34,10 @@ DECLARE_GLOBAL_DATA_PTR;
+ #define GRF_GPIO1D_DS_0		0x230
+ #define GRF_GPIO1D_DS_1		0x234
+ #define GRF_GPIO1D_DS_2		0x238
++#define GRF_SOC_CON4 		0x510
++#define EDP_PHY_GRF_BASE	0xfdcb0000
++#define EDP_PHY_GRF_CON0	(EDP_PHY_GRF_BASE + 0x00)
++#define EDP_PHY_GRF_CON10	(EDP_PHY_GRF_BASE + 0x28)
+ #define GRF_SOC_CON4		0x510
+ #define PMU_BASE_ADDR		0xfdd90000
+ #define PMU_NOC_AUTO_CON0	(0x70)
+@@ -850,6 +854,9 @@ static void qos_priority_init(void)
+ 
+ int arch_cpu_init(void)
+ {
++	/* Disable eDP phy by default */
++	writel(0x00070007, EDP_PHY_GRF_CON10);
++	writel(0x0ff10ff1, EDP_PHY_GRF_CON0);
+ #ifdef CONFIG_SPL_BUILD
+ 	/*
+ 	 * When perform idle operation, corresponding clock can
